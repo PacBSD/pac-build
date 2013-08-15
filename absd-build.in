@@ -1,0 +1,177 @@
+#!/usr/bin/bash
+
+mydir=`dirname "$(readlink -f $0)"`/library
+libdir=${libdir:-${mydir}}
+
+die() {
+	echo "$@"
+	exit 1
+}
+
+source "${libdir}"/absd-build.build.sh    || die "failed to load library file"
+source "${libdir}"/absd-build.cmdline.sh  || die "failed to load library file"
+source "${libdir}"/absd-build.conf.sh     || die "failed to load library file"
+source "${libdir}"/absd-build.package.sh  || die "failed to load library file"
+source "${libdir}"/absd-build.zfs.sh      || die "failed to load library file"
+
+load_config
+
+run_zfsopts "$@"
+
+opt_install=()
+opt_confirm=--noconfirm
+
+cmd_usage="[options] <repo> <package>"
+cmd_options=(
+	"h help        show this help"
+	"k kill        remove the build dir and quit"
+	"n noclean     don't clean the build dir (useful for continuing)"
+	"x existing    use the existing build dir instead of reinstalling"
+	"y nosync      don't sync the repositories via pacman -Sy"
+	"u update      update an existing chroot"
+	"C noconfirm   do not use the --noconfirm option on commands"
+	"s usershell   open a shell in the chroot as builder"
+	"S rootshell   open a shell in the chroot as root"
+	"R repackage   add -R to makepkg"
+	"e keepbuild   pass -e to makepkg (keeping previous pkg/ and src/ dirs intact)"
+	"L kill_ld     remove ld-elf.so.hints before trying to chroot"
+	"Z zfs         use an existing ZFS base"
+	"M mountonly   only mount the ZFS base and quit"
+	"P noprepare   do not run the prepare script"
+	"i:PKG addpkg  install this package before building (NOT recommended)"
+)
+
+cmdopt_addpkg() {
+	opt_install=("${opt_install[@]}" $OPTARG)
+}
+cmdopt_noconfirm() {
+	opt_confirm=""
+}
+cmdopt_help() {
+	usage
+	cat <<EOF
+
+maintaining a ZFS base system:
+  $progname init      initialize a new subvolume
+  $progname update    update an existing subvolume
+  $progname remove    remove the base subvolume
+EOF
+	exit 0
+}
+wantshell=0
+opt_shell=0
+cmdopt_usershell() {
+	opt_shell=1
+}
+cmdopt_rootshell() {
+	opt_shell=2
+	let wantshell++
+}
+cmdopt_zfs() {
+	zfs_check
+	zfs_exists 1
+}
+
+cmd_parse "$@"
+shift $((OPTIND-1))
+
+while imply update    existing            || \
+      imply existing  noclean             || \
+      imply keepbuild existing            || \
+      imply usershell keepbuild           || \
+      imply rootshell keepbuild           || \
+      imply repackage keepbuild           || \
+      imply mountonly zfs
+do :; done
+
+makepkgargs=()
+
+if (( $opt_repackage )) ; then
+	makepkgargs=("${makepkgargs[@]}" -R)
+fi
+if (( $opt_keepbuild )); then
+	makepkgargs=("${makepkgargs[@]}" -e)
+fi
+
+if (( $# != 2 )); then
+	usage
+	exit 1
+fi
+
+msg "Additional packages: ${opt_install[@]}"
+
+if (( $opt_kill )); then opt_noclean=0; fi
+
+# package options:
+repo="$1"
+package="$2"
+# let the msg function use repo/package
+newmsg
+
+fullpath="$abstree/$repo/$package"
+fulloutput="$package_output/$repo"
+builddir="$buildtop/$repo/$package"
+
+#
+# Check options
+#
+if (( ! $opt_kill && ! $opt_mountonly )); then
+	[ -d "$fullpath" ] || die "No such package found in abs-tree"
+	[ -e "$fullpath/PKGBUILD" ] || die "No PKGBUILD found for package %s" "$package"
+	srcpkg=$(getsource)
+	check_source
+fi
+
+#
+# Clean previous stuff
+#
+if (( $opt_zfs )); then
+	zfs_configure
+fi
+
+if (( $opt_zfs )); then
+	if (( ! $opt_noclean )); then
+		zfs_clean_previous
+		if (( $opt_kill )); then exit 0; fi
+	fi
+	zfs_create_chroot
+	if (( $opt_mountonly )); then
+		msg "mounted"
+		exit 0
+	fi
+	mount_into_chroot
+else
+	if (( ! $opt_noclean )); then
+		clean_previous
+		if (( $opt_kill )); then exit 0; fi
+	fi
+	create_chroot
+	configure_chroot
+fi
+if (( ! $opt_noprepare )); then
+	run_prepare
+fi
+if (( $wantshell < 4 )); then
+	create_builder_home
+fi
+if (( $wantshell < 3 )); then
+	syncdeps
+fi
+
+if (( $opt_shell == 1 )); then
+	msg "Entering chroot as builder"
+	chroot "${builddir}" /usr/bin/su -l builder
+elif (( $opt_shell == 2 )); then
+	msg "Entering chroot as root"
+	chroot "${builddir}" /usr/bin/bash
+else
+	start_build
+	move_packages
+fi
+
+msg "Unmounting stuff"
+do_unmount
+
+if (( $opt_zfs )); then
+	zfs_unmount_chroot
+fi

@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+
+sed -i '' -e '/PATH/d' /usr/share/skel/dot.profile
+sed -i '' -e '/path/d' /usr/share/skel/dot.cshrc
