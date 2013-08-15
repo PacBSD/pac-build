@@ -124,12 +124,17 @@ fi
 
 #
 # Clean previous stuff
-#
 if (( $opt_zfs )); then
 	zfs_configure
 fi
 
+# Create directories if they don't exist
+install -dm755 "${buildtop}"
+install -dm755 "${buildtop}/"{,output/}{core,extra,community,linux,devel}
+
 if (( $opt_zfs )); then
+	install -dm755 "${buildtop}/subvol"
+
 	if (( ! $opt_noclean )); then
 		zfs_clean_previous
 		if (( $opt_kill )); then exit 0; fi
