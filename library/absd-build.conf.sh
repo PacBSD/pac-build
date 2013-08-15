@@ -21,6 +21,12 @@ preconf() {
 	}
 }
 
+checkconf() {
+	if [[ ! -e "/etc/pacman.conf.clean" ]]; then
+		die "/etc/pacman.conf.clean not found"
+	fi
+}
+
 newmsg() {
 	msg() {
 		local mesg=$1; shift
@@ -70,6 +76,7 @@ postconf() {
 
 load_config() {
 	preconf
+	checkconf
 	readconf
 	postconf
 }
