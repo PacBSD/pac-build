@@ -1,0 +1,30 @@
+#!/usr/bin/bash
+	
+msg() {
+	local mesg=$1; shift
+	printf "\033[1;34m==>\033[0;0m [$repo/$package] ${mesg}\n" "$@"
+}
+die() {
+	msg "$@"
+	exit 1
+}
+
+if [ "$1" == "" ]; then
+	msg "No architecture specified..."
+	die "usage: $0 {i686,x86_64}"
+fi
+
+arch="$1"
+arch2=$(echo ${arch} | sed -e "s/_/-/g")
+
+if [[ "$arch" != "x86_64" && "$arch" != "i686" ]]; then
+	msg "Invalid arcitecture specified..."
+	die "usage: $0 {i686,x86_64}"
+fi
+
+sed -i '' -re "s/(Architecture *= *).*/\1$arch/g" /etc/pacman.conf.clean
+
+sed -i '' -e "s/CARCH=\".*\"/CARCH=\"$arch\"/" /etc/makepkg.conf
+sed -i '' -e "s/CHOST=\".*\"/CHOST=\"${arch}-unknown-freebsd\"/" /etc/makepkg.conf
+sed -i '' -e "s/march=[^ ]*/march=${arch2}/g" /etc/makepkg.conf
+#sed -i '' -re "s/CHOST=\".*\"/CHOST=\"${arch}-unknown-freebsd\"" /etc/makepkg.conf
