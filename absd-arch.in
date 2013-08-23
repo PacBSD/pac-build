@@ -2,7 +2,7 @@
 	
 msg() {
 	local mesg=$1; shift
-	printf "\033[1;34m==>\033[0;0m [$repo/$package] ${mesg}\n" "$@"
+	printf "\033[1;34m==>\033[0;0m ${mesg}\n" "$@"
 }
 die() {
 	msg "$@"
@@ -27,4 +27,3 @@ sed -i '' -re "s/(Architecture *= *).*/\1$arch/g" /etc/pacman.conf.clean
 sed -i '' -e "s/CARCH=\".*\"/CARCH=\"$arch\"/" /etc/makepkg.conf
 sed -i '' -e "s/CHOST=\".*\"/CHOST=\"${arch}-unknown-freebsd\"/" /etc/makepkg.conf
 sed -i '' -e "s/march=[^ ]*/march=${arch2}/g" /etc/makepkg.conf
-#sed -i '' -re "s/CHOST=\".*\"/CHOST=\"${arch}-unknown-freebsd\"" /etc/makepkg.conf
