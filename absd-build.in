@@ -8,6 +8,10 @@ die() {
 	exit 1
 }
 
+# some defaults, can be overwritten in the config
+opt_zfs=0
+opt_mountfs=()
+
 source "${libdir}"/absd-build.build.sh    || die "failed to load library file"
 source "${libdir}"/absd-build.cmdline.sh  || die "failed to load library file"
 source "${libdir}"/absd-build.conf.sh     || die "failed to load library file"
@@ -19,7 +23,6 @@ load_config
 run_zfsopts "$@"
 
 opt_install=()
-opt_mountfs=()
 opt_confirm=--noconfirm
 
 cmd_usage="[options] <repo> <package>"

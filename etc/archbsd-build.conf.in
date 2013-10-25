@@ -10,6 +10,9 @@ abstree=%%VARDIR%%/abstree
 buildtop=%%VARDIR%%/buildtop
 
 # ZFS settings
+# to enable ZFS by default, set this to 1
+#opt_zfs=0
+
 # subvol:
 #   The name of the subvolume to maintain with absd-build
 #   When set to INVALID ZFS support will be disabled.
@@ -19,6 +22,11 @@ buildtop=%%VARDIR%%/buildtop
 
 # optional zfs compression
 #zfs_compression=gzip
+
+# To mount proc or linproc by default, add them to this array
+#opt_mountfs=()
+# eg to automount /proc by default:
+##opt_mountfs=(proc)
 
 # These can be changed if necessary
 #package_output=${buildtop}/output
