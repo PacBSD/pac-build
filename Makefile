@@ -7,7 +7,7 @@ SYSCONFDIR := /etc
 VARDIR := /var/absd
 DATADIR := $(PREFIX)/share/$(PROJECT_NAME)
 
-SCRIPTFILES = absd-build etc/archbsd-build.conf
+SCRIPTFILES = absd-build etc/archbsd-build.conf absd-arch
 DATAFILES   = library/*.sh
 
 all: $(SCRIPTFILES)
@@ -20,6 +20,9 @@ absd-build: absd-build.in
 
 etc/archbsd-build.conf: etc/archbsd-build.conf.in
 	sed -e 's@%%VARDIR%%@$(VARDIR)@g' $*.in > $@
+
+absd-arch: absd-arch.in
+	cp $@.in $@
 
 install:
 	install -dm755                 "$(DESTDIR)$(BINDIR)"
