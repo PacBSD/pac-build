@@ -27,6 +27,7 @@ absd-arch: absd-arch.in
 install:
 	install -dm755                 "$(DESTDIR)$(BINDIR)"
 	install -m755  absd-build      "$(DESTDIR)$(BINDIR)/absd-build"
+	install -m755  absd-arch       "$(DESTDIR)$(BINDIR)/absd-arch"
 	install -dm755                 "$(DESTDIR)$(SYSCONFDIR)"
 	install -m644  etc/archbsd-build.conf \
 	                               "$(DESTDIR)$(SYSCONFDIR)/archbsd-build.conf"
