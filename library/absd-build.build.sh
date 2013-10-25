@@ -35,7 +35,11 @@ mount_into_chroot() {
 	want_unmount=1
 	mount_nullfs {,"${builddir}"}/var/cache/pacman/pkg || die "Failed to bind package cache"
 	mount -t devfs devfs "${builddir}/dev" || die "Failed to mount devfs"
-	mount -t procfs procfs "${builddir}/proc" || die "Failed to mount procfs"
+	check_mountfs proc && mount -t procfs procfs "${builddir}/proc" || die "Failed to mount procfs"
+	if check_mountfs linproc; then
+		install -dm755 "${builddir}/compat/linux/proc"
+		mount -t linprocfs linprocfs "${builddir}/compat/linux/proc" || die "Failed to mount linprocfs"
+	fi
 }
 
 inroot() {

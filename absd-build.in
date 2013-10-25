@@ -19,6 +19,7 @@ load_config
 run_zfsopts "$@"
 
 opt_install=()
+opt_mountfs=()
 opt_confirm=--noconfirm
 
 cmd_usage="[options] <repo> <package>"
@@ -39,10 +40,14 @@ cmd_options=(
 	"M mountonly   only mount the ZFS base and quit"
 	"P noprepare   do not run the prepare script"
 	"i:PKG addpkg  install this package before building (NOT recommended)"
+	"m:MNT mount   mount additional standard filesystems such as proc"
 )
 
 cmdopt_addpkg() {
 	opt_install=("${opt_install[@]}" $OPTARG)
+}
+cmdopt_mount() {
+	opt_mountfs=("${opt_mountfs[@]}" ${OPTARG//,/ })
 }
 cmdopt_noconfirm() {
 	opt_confirm=""
@@ -50,6 +55,11 @@ cmdopt_noconfirm() {
 cmdopt_help() {
 	usage
 	cat <<EOF
+
+mount options can be separated by comma or specified multiple
+times:
+  proc      mount procfs to /proc
+  linproc   mount linprocfs to /compat/linux/proc
 
 maintaining a ZFS base system:
   $progname init      initialize a new subvolume

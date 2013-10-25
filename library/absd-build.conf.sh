@@ -68,7 +68,8 @@ readconf() {
 postconf() {
 	do_unmount() {
 		msg "unmounting binds"
-		umount "${builddir}"/{dev,proc,var/cache/pacman/pkg} 2>/dev/null
+		umount "${builddir}"/{dev,var/cache/pacman/pkg} 2>/dev/null
+		umount "${builddir}"/{proc,compat/linux/proc} 2>/dev/null
 	}
 	do_unmount
 	want_unmount=0
