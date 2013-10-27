@@ -31,6 +31,15 @@ create_chroot() {
 	install -m644 /etc/pacman.conf.clean "${builddir}/etc/pacman.conf"
 }
 
+check_mountfs() {
+	for i in "${opt_mountfs[@]}"; do
+		if [[ "$i" == "$1" ]]; then
+			return 0
+		fi
+	done
+	return 1
+}
+
 mount_into_chroot() {
 	want_unmount=1
 	mount_nullfs {,"${builddir}"}/var/cache/pacman/pkg || die "Failed to bind package cache"
