@@ -110,6 +110,20 @@ zfs_update() {
 	zfs_unmount
 }
 
+zfs_enter() {
+	zfs_exists 1
+	msg "entering subvolume \`${subvol}'"
+	zfs_mount
+
+	msg "showing all dot-files in /etc..."
+	builddir="$subvol_dir"
+	chroot "${builddir}" find /etc -name '*.pac*'
+	msg "make sure you fix it all up correctly"
+	chroot "${builddir}" /usr/bin/bash
+
+	zfs_unmount
+}
+
 zfs_remove() {
 	zfs_exists 1
 	builddir="$subvol_dir"
@@ -124,6 +138,7 @@ run_zfsopts() {
 		init)   zfs_check ; zfs_init   ;;
 		update) zfs_check ; zfs_update ;;
 		remove) zfs_check ; zfs_remove ;;
+		enter)  zfs_check ; zfs_enter  ;;
 		*)      return ;;
 	esac
 	exit 0
