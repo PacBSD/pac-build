@@ -107,6 +107,15 @@ zfs_update() {
 	create_chroot
 	opt_kill_ld=0
 	configure_chroot
+
+	if find "${builddir}/etc" -name '*.pac*' | grep -q .; then
+		msg "Showing dotfiles:"
+		chroot "${builddir}" find /etc -name '*.pac*'
+		msg "NOTE:"
+		msg "NOTE: Please enter the subvolume and fix up all the dotfiles"
+		msg "NOTE:"
+	fi
+
 	zfs_unmount
 }
 
