@@ -68,6 +68,7 @@ maintaining a ZFS base system:
   $progname init      initialize a new subvolume
   $progname update    update an existing subvolume
   $progname remove    remove the base subvolume
+  $progname enter     start a shell in the base subvolume
 EOF
 	exit 0
 }
