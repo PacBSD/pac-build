@@ -36,12 +36,6 @@ preconf() {
 	}
 }
 
-checkconf() {
-	if [[ ! -e "/etc/pacman.conf.clean" ]]; then
-		die "/etc/pacman.conf.clean not found"
-	fi
-}
-
 newmsg() {
 	msg() {
 		local mesg=$1; shift
@@ -91,7 +85,11 @@ postconf() {
 
 	eval "subvol=\${subvol_${carch}:-INVALID}"
 	eval "pacman_conf_path=\${pacman_conf_${carch}:-/etc/pacman.conf.clean}"
-	eval "makepkg_conf_path=\${makepkg_conf_${carch}:-/etc/makepkg.conf}"
+	# eval "makepkg_conf_path=\${makepkg_conf_${carch}:-/etc/makepkg.conf}"
+
+	if [[ ! -e "${pacman_conf_path}" ]]; then
+		die "${pacman_conf_path} not found"
+	fi
 
 	if [[ $subvol == "INVALID" ]]; then
 		zfs_enabled=0
@@ -112,7 +110,6 @@ postconf() {
 
 load_config() {
 	preconf
-	checkconf
 	readconf
 }
 

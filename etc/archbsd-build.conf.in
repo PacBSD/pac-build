@@ -10,6 +10,10 @@ abstree=%%VARDIR%%/abstree
 # default_arch: The default architecture to build for
 #default_arch=x86_64
 
+# pacman.conf by architecture:
+#pacman_conf_x86_64=/etc/pacman.conf.clean
+#pacman_conf_i686=/etc/pacman.conf.clean
+
 # buildtop: Path to the top of the build tree
 #   will contain directories like: $arch/$repo/$package
 #   in which the current package will be built
