@@ -34,8 +34,6 @@ source "${libdir}"/absd-build.zfs.sh      || die "failed to load library file"
 
 load_config
 
-run_zfsopts "$@"
-
 opt_install=()
 opt_confirm=--noconfirm
 
@@ -115,6 +113,7 @@ do :; done
 
 # update vars affected by the options like $carch
 postconf
+run_zfsopts "$@"
 
 makepkgargs=()
 
