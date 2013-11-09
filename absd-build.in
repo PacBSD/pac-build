@@ -143,8 +143,11 @@ package="$2"
 newmsg
 
 fullpath="$abstree/$repo/$package"
-fulloutput="$package_output/$repo"
-builddir="$buildtop/$repo/$package"
+fulloutput="$package_output/$repo/$carch"
+builddir="$buildtop/$repo/$carch/$package"
+
+install -dm755 "${fulloutput}"
+install -dm755 "${builddir}"
 
 #
 # Check options
