@@ -74,6 +74,7 @@ readconf() {
 }
 
 postconf() {
+	default_carch=${default_carch:-x86_64}
 	carch=${carch:-${default_carch}}
 	package_output=${package_output:-${buildtop}/output}
 	builder_bashrc=${builder_bashrc:-${buildtop}/scripts/bashrc}
@@ -113,7 +114,6 @@ load_config() {
 	preconf
 	checkconf
 	readconf
-	postconf
 }
 
 check_source() {

@@ -65,6 +65,9 @@ cmdopt_addpkg() {
 cmdopt_mount() {
 	opt_mountfs=("${opt_mountfs[@]}" ${OPTARG//,/ })
 }
+cmdopt_arch() {
+	carch="$OPTARG"
+}
 cmdopt_noconfirm() {
 	opt_confirm=""
 }

@@ -22,6 +22,7 @@ clean_previous() {
 
 create_chroot() {
 	msg "Installing chroot environment..."
+	submsg 'using: %s' "${pacman_conf_path}"
 	mkdir -p "$builddir" || die "Failed to create build dir: %s" "$builddir"
 	mkdir -p "$builddir/var/lib/pacman"
 

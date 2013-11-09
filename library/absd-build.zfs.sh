@@ -57,6 +57,8 @@ zfs_mounted() {
 
 zfs_domount() {
 	msg "mounting subvolume \`${subvol} at: ${subvol_dir}"
+	submsg 'carch: %s' "$carch"
+	install -dm755 "$subvol_dir"
 	mount -t zfs "$subvol" "$subvol_dir" \
 	|| die "Failed to mount subvolume"
 }
