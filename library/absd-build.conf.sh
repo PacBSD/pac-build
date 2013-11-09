@@ -82,7 +82,9 @@ readconf() {
 
 postconf() {
 	do_unmount() {
-		[ "x${builddir}" == ""] || return;
+		if [[ "${builddir}" == "" ]]; then
+			return;
+		fi
 		msg "unmounting binds"
 		umount "${builddir}"/{dev,var/cache/pacman/pkg} 2>/dev/null
 		umount "${builddir}"/{proc,compat/linux/proc} 2>/dev/null
