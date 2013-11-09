@@ -10,6 +10,7 @@ DATADIR := $(PREFIX)/share/$(PROJECT_NAME)
 SCRIPTFILES = absd-build etc/archbsd-build.conf
 DATAFILES   = library/*.sh
 
+.PHONY: install install-program install-config clean
 all: $(SCRIPTFILES)
 
 absd-build: absd-build.in
@@ -19,14 +20,13 @@ absd-build: absd-build.in
 	      > absd-build
 
 etc/archbsd-build.conf: etc/archbsd-build.conf.in
-	sed -e 's@%%VARDIR%%@$(VARDIR)@g' $*.in > $@
+	sed -e 's@%%VARDIR%%@$(VARDIR)@g' $@.in > $@
 
-install:
+install: install-program install-config
+
+install-program:
 	install -dm755                 "$(DESTDIR)$(BINDIR)"
 	install -m755  absd-build      "$(DESTDIR)$(BINDIR)/absd-build"
-	install -dm755                 "$(DESTDIR)$(SYSCONFDIR)"
-	install -m644  etc/archbsd-build.conf \
-	                               "$(DESTDIR)$(SYSCONFDIR)/archbsd-build.conf"
 	install -dm755                 "$(DESTDIR)$(DATADIR)"
 	install -m644 $(DATAFILES)     "$(DESTDIR)$(DATADIR)/"
 	install -dm755                 "$(DESTDIR)$(VARDIR)/scripts"
@@ -35,6 +35,11 @@ install:
 	                               "$(DESTDIR)$(VARDIR)/scripts/setup_root"
 	install -m755 scripts/prepare_root \
 	                               "$(DESTDIR)$(VARDIR)/scripts/prepare_root"
+
+install-config:
+	install -dm755                 "$(DESTDIR)$(SYSCONFDIR)"
+	install -m644  etc/archbsd-build.conf \
+	                               "$(DESTDIR)$(SYSCONFDIR)/archbsd-build.conf"
 
 clean:
 	rm $(SCRIPTFILES)
