@@ -62,25 +62,41 @@ readconf() {
 	cachedir=/var/cache/pacman/pkg
 	abstree=/var/absd-build/abs
 	buildtop=/var/absd-build/build
+	default_arch=x86_64
+	subvol_x86_64=INVALID
+	subvol_i686=INVALID
+	subvol_arm=INVALID
 	subvol=INVALID
 	zfs_compression=gzip
 	configfile="/etc/archbsd-build.conf"
 	[ -f "$configfile" ] || die "please create a config in $configfile"
 	source "$configfile"
+}
+
+postconf() {
+	carch=${carch:-${default_carch}}
 	package_output=${package_output:-${buildtop}/output}
 	builder_bashrc=${builder_bashrc:-${buildtop}/scripts/bashrc}
 	setup_script=${setup_script:-${buildtop}/scripts/setup_root}
 	prepare_script=${prepare_script:-${buildtop}/scripts/prepare_root}
-	subvol_dir=${subvol_dir:-${buildtop}/subvol}
+	subvol_dir=${subvol_dir:-${buildtop}/subvol/${carch}}
+
+	case "$carch" in
+		x86_64|i686|arm) : ;;
+		*)
+			die "Unknown architecture to build for: '${carch}'"
+			;;
+	esac
+
+	eval "subvol=\${subvol_${carch}:-INVALID}"
+	eval "pacman_conf_path=\${pacman_conf_${carch}:-/etc/pacman.conf.clean}"
+	eval "makepkg_conf_path=\${makepkg_conf_${carch}:-/etc/makepkg.conf}"
 
 	if [[ $subvol == "INVALID" ]]; then
 		zfs_enabled=0
 	else
 		zfs_enabled=1
 	fi
-}
-
-postconf() {
 	do_unmount() {
 		if [[ "${builddir}" == "" ]]; then
 			return;

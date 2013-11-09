@@ -159,10 +159,10 @@ zfs_remove() {
 
 run_zfsopts() {
 	case "$1" in
-		init)   zfs_check ; zfs_init   ;;
-		update) zfs_check ; zfs_update ;;
-		remove) zfs_check ; zfs_remove ;;
-		enter)  zfs_check ; zfs_enter  ;;
+		init)   postconf ; zfs_check ; zfs_init   ;;
+		update) postconf ; zfs_check ; zfs_update ;;
+		remove) postconf ; zfs_check ; zfs_remove ;;
+		enter)  postconf ; zfs_check ; zfs_enter  ;;
 		*)      return ;;
 	esac
 	exit 0

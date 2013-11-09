@@ -25,7 +25,7 @@ create_chroot() {
 	mkdir -p "$builddir" || die "Failed to create build dir: %s" "$builddir"
 	mkdir -p "$builddir/var/lib/pacman"
 
-	pacman_rootopt=(--config /etc/pacman.conf.clean --root "$builddir" --cachedir "$cachedir")
+	pacman_rootopt=(--config "${pacman_conf_path}" --root "$builddir" --cachedir "$cachedir")
 
 	if (( ! $opt_nosync )); then
 		if ! pacman $opt_confirm "${pacman_rootopt[@]}" -Sy; then
@@ -43,7 +43,7 @@ create_chroot() {
 		fi
 	fi
 
-	install -m644 /etc/pacman.conf.clean "${builddir}/etc/pacman.conf"
+	install -m644 "${pacman_conf_path}" "${builddir}/etc/pacman.conf"
 }
 
 check_mountfs() {

@@ -4,20 +4,31 @@
 
 #cachedir=/var/cache/pacman/pkg
 
-# DO NOT USE $HOME unless you want stuff to end up in /root
-# These 2 lines might need to be edited for your needs :)
+# abstree: Path to the ABS git clone
 abstree=%%VARDIR%%/abstree
+
+# default_arch: The default architecture to build for
+#default_arch=x86_64
+
+# buildtop: Path to the top of the build tree
+#   will contain directories like: $arch/$repo/$package
+#   in which the current package will be built
 buildtop=%%VARDIR%%/buildtop
 
 # ZFS settings
 # to enable ZFS by default, set this to 1
 #opt_zfs=0
 
-# subvol:
+# subvol_$ARCH:
 #   The name of the subvolume to maintain with absd-build
 #   When set to INVALID ZFS support will be disabled.
 #   'absd-init' will initialize the pool with mountpoint=legacy
 # Example: zpool/build_base
+#subvol_x86_64=zpool/build_base_64
+#subvol_i686=zpool/build_base_32
+
+# deprecated: subvol:
+#   Will be overwritten by the above
 #subvol=INVALID
 
 # optional zfs compression

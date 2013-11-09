@@ -58,6 +58,7 @@ cmd_options=(
 	"P noprepare   do not run the prepare script"
 	"i:PKG addpkg  install this package before building (NOT recommended)"
 	"m:MNT mount   mount additional standard filesystems such as proc"
+	"a:ARCH arch   build for a specific architecture"
 )
 
 cmdopt_addpkg() {
@@ -111,6 +112,9 @@ while imply update    existing            || \
       imply repackage keepbuild           || \
       imply mountonly zfs
 do :; done
+
+# update vars affected by the options like $carch
+postconf
 
 makepkgargs=()
 
