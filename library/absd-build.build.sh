@@ -153,6 +153,7 @@ start_build() {
 
 move_packages() {
 	msg "Copying package archives"
+	submsg "to $fulloutput"
 	mkdir -p "$fulloutput"
 	mv "${builddir}/home/builder/package/"*.pkg.tar.xz "$fulloutput" ||
 		die "Failed to fetch packages..."
