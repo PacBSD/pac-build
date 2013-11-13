@@ -171,8 +171,8 @@ run_zfsopts() {
 }
 
 zfs_configure() {
-	snapshot="${subvol}@${repo}.${package}"
-	repovol="${subvol}__${repo}.${package}"
+	snapshot="${subvol}@${repo}.${package_safe}"
+	repovol="${subvol}__${repo}.${package_safe}"
 }
 
 zfs_remove_dataset() {

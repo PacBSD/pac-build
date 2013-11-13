@@ -39,7 +39,7 @@ preconf() {
 newmsg() {
 	msg() {
 		local mesg=$1; shift
-		printf "\033[1;34m==>\033[0;0m [$repo/$package] ${mesg}\n" "$@"
+		printf "\033[1;34m==>\033[0;0m [$repo/$package_name] ${mesg}\n" "$@"
 	}
 }
 

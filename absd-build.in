@@ -138,13 +138,15 @@ if (( $opt_kill )); then opt_noclean=0; fi
 
 # package options:
 repo="$1"
-package="$2"
+package="++DEPRECATED++"
+package_name="$2"
+package_safe="${@//+/_}"
 # let the msg function use repo/package
 newmsg
 
-fullpath="$abstree/$repo/$package"
+fullpath="$abstree/$repo/$package_name"
 fulloutput="$package_output/$repo/$carch"
-builddir="$buildtop/$repo/$carch/$package"
+builddir="$buildtop/$repo/$carch/$package_name"
 
 install -dm755 "${fulloutput}"
 install -dm755 "${builddir}"
@@ -154,7 +156,7 @@ install -dm755 "${builddir}"
 #
 if (( ! $opt_kill && ! $opt_mountonly )); then
 	[ -d "$fullpath" ] || die "No such package found in abs-tree"
-	[ -e "$fullpath/PKGBUILD" ] || die "No PKGBUILD found for package %s" "$package"
+	[ -e "$fullpath/PKGBUILD" ] || die "No PKGBUILD found for package %s" "$package_name"
 	srcpkg=$(getsource)
 	check_source
 fi
