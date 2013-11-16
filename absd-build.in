@@ -140,7 +140,7 @@ if (( $opt_kill )); then opt_noclean=0; fi
 repo="$1"
 package="++DEPRECATED++"
 package_name="$2"
-package_safe="${@//+/_}"
+package_safe="${2//+/_}"
 # let the msg function use repo/package
 newmsg
 

@@ -176,6 +176,7 @@ zfs_configure() {
 }
 
 zfs_remove_dataset() {
+	msg "Removing dataset %s" "$1"
 	if zvol_exists "$1"; then
 		if zvol_ismounted "$1"; then
 			umount "$1" || die "unmounting failed"
@@ -184,6 +185,8 @@ zfs_remove_dataset() {
 
 		msg "removing zfs dataset $1"
 		zfs destroy "$1"
+	else
+		submsg "No such sobvolume"
 	fi
 }
 
