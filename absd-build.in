@@ -105,8 +105,8 @@ cmdopt_zfs() {
 cmd_parse "$@"
 shift $((OPTIND-1))
 
-while imply update    existing            || \
-      imply existing  noclean             || \
+while imply existing  noclean             || \
+      imply update    existing            || \
       imply keepbuild existing            || \
       imply usershell keepbuild           || \
       imply rootshell keepbuild           || \
@@ -215,7 +215,3 @@ fi
 
 msg "Unmounting stuff"
 do_unmount
-
-if (( $opt_zfs )); then
-	zfs_unmount_chroot
-fi

@@ -220,8 +220,14 @@ zfs_create_chroot() {
 	msg "mounting clone"
 	mount -t zfs "$repovol" "$builddir" \
 	|| die "Failed to mount clone"
+
+	if (( $opt_update )); then
+		if ! pacman $opt_confirm "${pacman_rootopt[@]}" -Syu --needed "${opt_install[@]}"; then
+			die "Failed to update build chroot"
+		fi
+	fi
 }
 
 zfs_unmount_chroot() {
-	umount "$builddir" || die "Failed to unmount clone from build directory"
+	umount "$builddir" 2>/dev/null
 }

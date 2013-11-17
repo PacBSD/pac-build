@@ -103,6 +103,9 @@ postconf() {
 		msg "unmounting binds"
 		umount "${builddir}"/{dev,var/cache/pacman/pkg} 2>/dev/null
 		umount "${builddir}"/{proc,compat/linux/proc} 2>/dev/null
+		if (( $opt_zfs )); then
+			zfs_unmount_chroot
+		fi
 	}
 	do_unmount
 	want_unmount=0

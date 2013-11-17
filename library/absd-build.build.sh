@@ -39,7 +39,7 @@ create_chroot() {
 			die "Failed to install build chroot"
 		fi
 	elif (( $opt_update )); then
-		if ! pacman $opt_confirm "${pacman_rootopt[@]}" -Su --needed "${opt_install[@]}"; then
+		if ! pacman $opt_confirm "${pacman_rootopt[@]}" -Syu --needed "${opt_install[@]}"; then
 			die "Failed to update build chroot"
 		fi
 	fi
