@@ -201,6 +201,11 @@ zfs_create_chroot() {
 			mount -t zfs "$repovol" "$builddir" \
 			|| die "Failed to mount existing clone"
 		fi
+		if (( $opt_update )); then
+			if ! pacman $opt_confirm "${pacman_rootopt[@]}" -Syu --needed "${opt_install[@]}"; then
+				die "Failed to update build chroot"
+			fi
+		fi
 		return
 	fi
 
