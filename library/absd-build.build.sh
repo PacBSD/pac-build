@@ -103,6 +103,9 @@ configure_chroot() {
 
 	msg "Installing shell profile..."
 	install -o 1001 -m644 "$builder_bashrc" "${builddir}/home/builder/.bashrc"
+
+	msg "Linking .profile to .bashrc"
+	ln -sf .bashrc "${builddir}/home/builder/.profile"
 }
 
 create_builder_home() {
