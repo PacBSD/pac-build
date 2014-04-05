@@ -57,13 +57,14 @@ cmd_options=(
 	"i:PKG addpkg  install this package before building (NOT recommended)"
 	"m:MNT mount   mount additional standard filesystems such as proc"
 	"a:ARCH arch   build for a specific architecture"
+	"o:OPT addopt  add a makepkg option"
 )
 
 cmdopt_addpkg() {
-	opt_install=("${opt_install[@]}" $OPTARG)
+	opt_install+=("$OPTARG")
 }
 cmdopt_mount() {
-	opt_mountfs=("${opt_mountfs[@]}" ${OPTARG//,/ })
+	opt_mountfs+=(${OPTARG//,/ })
 }
 cmdopt_arch() {
 	carch="$OPTARG"
@@ -101,6 +102,10 @@ cmdopt_zfs() {
 	zfs_check
 	zfs_exists 1
 }
+makepkgargs=()
+cmdopt_addopt() {
+	makepkgargs+=("${OPTARG}")
+}
 
 cmd_parse "$@"
 shift $((OPTIND-1))
@@ -118,13 +123,11 @@ do :; done
 postconf
 run_zfsopts "$@"
 
-makepkgargs=()
-
 if (( $opt_repackage )) ; then
-	makepkgargs=("${makepkgargs[@]}" -R)
+	makepkgargs+=(-R)
 fi
 if (( $opt_keepbuild )); then
-	makepkgargs=("${makepkgargs[@]}" -e)
+	makepkgargs+=(-e)
 fi
 
 if (( $# != 2 )); then
