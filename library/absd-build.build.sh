@@ -79,6 +79,7 @@ inroot() {
 }
 
 configure_chroot() {
+	sed -i '' -e '/^PACKAGER=/d' "$builddir/etc/makepkg.conf"
 	echo 'PACKAGER="'"$PACKAGER"\" >> "$builddir/etc/makepkg.conf" \
 		|| die "Failed to add PACKAGER information"
 
