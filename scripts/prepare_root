@@ -1,42 +1,4 @@
 #!/usr/bin/bash
 
-source /etc/defaults/rc.conf
-
-ldconfig_paths=""
-ldconfig32_paths=""
-_LDC="/usr/lib /lib"
-
-for i in ${ldconfig_local_dirs}; do
-	if [ -d "$i" ]; then
-		_files=`find "$i" -type f`
-		if [ -n "$_files" ]; then
-			ldconfig_paths="${ldconfig_paths} `cat ${_files} | sort -u`"
-		fi
-	fi
-done
-for i in ${ldconfig_paths} /etc/ld-elf.so.conf; do
-	if [ -r "$i" ]; then
-		_LDC="$_LDC $i"
-	fi
-done
-
-ldconfig -elf -i ${_LDC}
-case `sysctl -n hw.machine_arch` in
-amd64)
-	for i in ${ldconfig_local32_dirs}; do
-		if [ -d "${i}" ]; then
-			_files=`find ${i} -type f`
-			if [ -n "${_files}" ]; then
-				ldconfig32_paths="${ldconfig32_paths} `cat ${_files} | sort -u`"
-			fi
-		fi
-	done
-	_LDC="/usr/lib32"
-	for i in ${ldconfig32_paths}; do
-		if [ -r "${i}" ]; then
-			_LDC="${_LDC} ${i}"
-		fi
-	done
-	ldconfig -32 -m ${_ins} ${_LDC}
-	;;
-esac
+# empty for now
+true

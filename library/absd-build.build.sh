@@ -148,6 +148,9 @@ run_prepare() {
 	msg "Running prepare script %s" "$prepare_script"
 	install -m644 "$prepare_script" "${builddir}/root/prepare.sh"
 	chroot "${builddir}" /usr/bin/bash /root/prepare.sh
+
+	msg "Running ldconfig service"
+	chroot "${builddir}" /usr/sbin/service ldconfig onestart
 }
 
 start_build() {
