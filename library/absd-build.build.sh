@@ -124,7 +124,9 @@ create_builder_home() {
 		esac
 		if [ -e "$fullpath/$i" ]; then
 			msg "Copying file %s" "$i"
-			install -o 1001 -m644 "$fullpath/$i" "${builddir}/home/builder/package/$i"
+			#install -o 1001 -m644 "$fullpath/$i" "${builddir}/home/builder/package/$i"
+			cp -a "$fullpath/$i" "${builddir}/home/builder/package/$i"
+			chown -R 1001 "${builddir}/home/builder/package/$i"
 		else
 			msg "You don't have this file? %s" "$i"
 		fi
