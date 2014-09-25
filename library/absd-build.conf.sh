@@ -56,7 +56,7 @@ readconf() {
 	cachedir=/var/cache/pacman/pkg
 	abstree=/var/absd-build/abs
 	buildtop=/var/absd-build/build
-	default_arch=x86_64
+	default_profile=x86_64
 	subvol_x86_64=INVALID
 	subvol_i686=INVALID
 	subvol_arm=INVALID
@@ -68,24 +68,17 @@ readconf() {
 }
 
 postconf() {
-	default_carch=${default_carch:-x86_64}
-	carch=${carch:-${default_carch}}
+	default_profile=${default_profile:-x86_64}
+	build_profile=${build_profile:-${default_profile}}
 	package_output=${package_output:-${buildtop}/output}
 	builder_bashrc=${builder_bashrc:-${buildtop}/scripts/bashrc}
 	setup_script=${setup_script:-${buildtop}/scripts/setup_root}
 	prepare_script=${prepare_script:-${buildtop}/scripts/prepare_root}
-	subvol_dir=${subvol_dir:-${buildtop}/subvol/${carch}}
+	subvol_dir=${subvol_dir:-${buildtop}/subvol/${build_profile}}
 
-	case "$carch" in
-		x86_64|i686|arm) : ;;
-		*)
-			die "Unknown architecture to build for: '${carch}'"
-			;;
-	esac
-
-	eval "subvol=\${subvol_${carch}:-INVALID}"
-	eval "pacman_conf_path=\${pacman_conf_${carch}:-/etc/pacman.conf.clean}"
-	# eval "makepkg_conf_path=\${makepkg_conf_${carch}:-/etc/makepkg.conf}"
+	eval "subvol=\${subvol_${build_profile}:-INVALID}"
+	eval "pacman_conf_path=\${pacman_conf_${build_profile}:-/etc/pacman.conf.clean}"
+	# eval "makepkg_conf_path=\${makepkg_conf_${build_profile}:-/etc/makepkg.conf}"
 
 	if [[ ! -e "${pacman_conf_path}" ]]; then
 		die "${pacman_conf_path} not found"

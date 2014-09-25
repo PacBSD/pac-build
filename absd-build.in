@@ -56,7 +56,7 @@ cmd_options=(
 	"P noprepare   do not run the prepare script"
 	"i:PKG addpkg  install this package before building (NOT recommended)"
 	"m:MNT mount   mount additional standard filesystems such as proc"
-	"a:ARCH arch   build for a specific architecture"
+	"a:PROF prof   select a build profile"
 	"o:OPT addopt  add a makepkg option"
 )
 
@@ -66,8 +66,8 @@ cmdopt_addpkg() {
 cmdopt_mount() {
 	opt_mountfs+=(${OPTARG//,/ })
 }
-cmdopt_arch() {
-	carch="$OPTARG"
+cmdopt_prof() {
+	build_profile="$OPTARG"
 }
 cmdopt_noconfirm() {
 	opt_confirm=""
@@ -119,7 +119,7 @@ while imply existing  noclean             || \
       imply mountonly zfs
 do :; done
 
-# update vars affected by the options like $carch
+# update vars affected by the options like $build_profile
 postconf
 run_zfsopts "$@"
 
@@ -148,8 +148,8 @@ package_safe="${2//+/_}"
 newmsg
 
 fullpath="$abstree/$repo/$package_name"
-fulloutput="$package_output/$repo/$carch"
-builddir="$buildtop/$repo/$carch/$package_name"
+fulloutput="$package_output/$repo/$build_profile"
+builddir="$buildtop/$repo/$build_profile/$package_name"
 
 install -dm755 "${fulloutput}"
 install -dm755 "${builddir}"

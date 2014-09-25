@@ -7,15 +7,15 @@
 # abstree: Path to the ABS git clone
 abstree=%%VARDIR%%/abstree
 
-# default_arch: The default architecture to build for
-#default_arch=x86_64
+# default_profile: The default build profile
+#default_profile=x86_64
 
-# pacman.conf by architecture:
+# pacman.conf by build profile:
 #pacman_conf_x86_64=/etc/pacman.conf.clean
 #pacman_conf_i686=/etc/pacman.conf.clean
 
 # buildtop: Path to the top of the build tree
-#   will contain directories like: $arch/$repo/$package
+#   will contain directories like: $build_profile/$repo/$package
 #   in which the current package will be built
 buildtop=%%VARDIR%%/buildtop
 
@@ -23,7 +23,7 @@ buildtop=%%VARDIR%%/buildtop
 # to enable ZFS by default, set this to 1
 #opt_zfs=0
 
-# subvol_$ARCH:
+# subvol_$build_profile:
 #   The name of the subvolume to maintain with absd-build
 #   When set to INVALID ZFS support will be disabled.
 #   'absd-init' will initialize the pool with mountpoint=legacy
