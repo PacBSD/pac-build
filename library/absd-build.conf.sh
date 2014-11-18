@@ -56,6 +56,7 @@ readconf() {
 	cachedir=/var/cache/pacman/pkg
 	abstree=/var/absd-build/abs
 	buildtop=/var/absd-build/build
+	vardir=/var/absd
 	default_profile=x86_64
 	subvol_x86_64=INVALID
 	subvol_i686=INVALID
@@ -71,9 +72,9 @@ postconf() {
 	default_profile=${default_profile:-x86_64}
 	build_profile=${build_profile:-${default_profile}}
 	package_output=${package_output:-${buildtop}/output}
-	builder_bashrc=${builder_bashrc:-${buildtop}/scripts/bashrc}
-	setup_script=${setup_script:-${buildtop}/scripts/setup_root}
-	prepare_script=${prepare_script:-${buildtop}/scripts/prepare_root}
+	builder_bashrc=${builder_bashrc:-${vardir}/scripts/bashrc}
+	setup_script=${setup_script:-${vardir}/scripts/setup_root}
+	prepare_script=${prepare_script:-${vardir}/scripts/prepare_root}
 	subvol_dir=${subvol_dir:-${buildtop}/subvol/${build_profile}}
 
 	eval "subvol=\${subvol_${build_profile}:-INVALID}"
