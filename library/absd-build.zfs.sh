@@ -84,7 +84,7 @@ zfs_init() {
 
 	msg "preparing directories for subvolume \`${subvol}'"
 	if [ ! -d "${subvol_dir}" ]; then
-		mkdir "${subvol_dir}" \
+		mkdir -p "${subvol_dir}" \
 		|| die "Failed to create subvolume mountpoint at $subvol_dir"
 	fi
 
