@@ -72,6 +72,12 @@ mount_into_chroot() {
 		install -dm755 "${builddir}/compat/linux/proc"
 		mount -t linprocfs linprocfs "${builddir}/compat/linux/proc" || die "Failed to mount linprocfs"
 	fi
+
+        if check_mountfs fdescfs fdescfs ; then
+                msg "mounting fdescfs"
+                mount -t fdescfs fdescfs "${builddir}/dev/fs" || die "Failed to mount fdescfs"
+        fi
+
 }
 
 inroot() {

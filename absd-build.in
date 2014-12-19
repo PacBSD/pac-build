@@ -80,6 +80,7 @@ mount options can be separated by comma or specified multiple
 times:
   proc      mount procfs to /proc
   linproc   mount linprocfs to /compat/linux/proc
+  fdescfs   mount fdescfs to /dev/fd
 
 maintaining a ZFS base system:
   $progname init      initialize a new subvolume
