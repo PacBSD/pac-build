@@ -75,7 +75,7 @@ mount_into_chroot() {
 
         if check_mountfs fdescfs fdescfs ; then
                 msg "mounting fdescfs"
-                mount -t fdescfs fdescfs "${builddir}/dev/fs" || die "Failed to mount fdescfs"
+                mount -t fdescfs fdescfs "${builddir}/dev/fd" || die "Failed to mount fdescfs"
         fi
 
 }
