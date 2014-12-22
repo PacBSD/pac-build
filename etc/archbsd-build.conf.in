@@ -28,7 +28,7 @@ buildtop=%%VARDIR%%/buildtop
 #opt_jail=0
 
 # default arguments for jails
-jail_args=('host.hostname=chroot' 'ip6=inherit' 'ip4=inherit' 'allow.raw_sockets' 'allow.chflags' 'allow.mount')
+jail_args=('host.hostname=build_jail' 'ip6=inherit' 'ip4=inherit' 'allow.raw_sockets' 'allow.chflags' 'allow.mount')
 
 # subvol_$build_profile:
 #   The name of the subvolume to maintain with absd-build
