@@ -143,9 +143,17 @@ zfs_enter() {
 
 	msg "showing all dot-files in /etc..."
 	builddir="$subvol_dir"
-	chroot "${builddir}" find /etc -name '*.pac*'
+	if (( $opt_jail )); then
+		jail -c path=${chrootdir} ${jail_args[@]} command="find /etc -name '*.pac*'"
+	else
+		chroot "${builddir}" find /etc -name '*.pac*'
+	fi
 	msg "make sure you fix it all up correctly"
-	chroot "${builddir}" /usr/bin/bash
+	if (( $opt_jail )); then
+		jail -c path=${chrootdir} ${jail_args[@]} command="/usr/bin/bash"
+	else
+		chroot "${builddir}" /usr/bin/bash
+	fi
 
 	zfs_unmount
 }

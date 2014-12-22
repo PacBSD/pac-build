@@ -24,6 +24,7 @@ die() {
 
 # some defaults, can be overwritten in the config
 opt_zfs=0
+opt_jail=0
 opt_mountfs=()
 
 source "${libdir}"/absd-build.build.sh    || die "failed to load library file"
@@ -208,10 +209,18 @@ fi
 
 if (( $opt_shell == 1 )); then
 	msg "Entering chroot as builder"
-	chroot "${builddir}" /usr/bin/su -l builder
+	if (( $opt_jail )); then
+		jail -c path=${builddir} ${jail_args[@]} command="/usr/bin/su -l builder"
+	else
+		chroot "${builddir}" /usr/bin/su -l builder
+	fi
 elif (( $opt_shell == 2 )); then
 	msg "Entering chroot as root"
-	chroot "${builddir}" /usr/bin/bash
+	if (( $opt_jail )); then
+		jail -c path=${builddir} ${jail_args[@]} command="/usr/bin/bash"
+	else
+		chroot "${builddir}" /usr/bin/bash
+	fi
 else
 	start_build
 	move_packages

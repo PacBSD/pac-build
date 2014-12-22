@@ -81,7 +81,11 @@ mount_into_chroot() {
 }
 
 inroot() {
-	chroot "${builddir}" "$@"
+	if (( $opt_jail )); then
+		jail -c path=${builddir} ${jail_args[@]} command="$@"
+	else
+		chroot "${builddir}" "$@"
+	fi
 }
 
 configure_chroot() {
@@ -94,20 +98,34 @@ configure_chroot() {
 
 	msg "Running setup script %s" "$setup_script"
 	install -m644 "$setup_script" "${builddir}/root/setup.sh"
-	chroot "${builddir}" /usr/bin/bash /root/setup.sh
+	if (( $opt_jail )); then
+		jail -c path=${builddir} ${jail_args[@]} command="/usr/bin/bash /root/setup.sh"
+	else
+		chroot "${builddir}" /usr/bin/bash /root/setup.sh
+	fi
 
 	msg "Initializing the keyring"
-	chroot "${builddir}" pacman-key --init
-	chroot "${builddir}" pacman-key --populate archbsd
+	if (( $opt_jail )); then
+		 jail -c path=${builddir} ${jail_args[@]} command="pacman-key --init"
+		 jail -c path=${builddir} ${jail_args[@]} command="pacman-key --populate archbsd"
+	else
+		chroot "${builddir}" pacman-key --init
+		chroot "${builddir}" pacman-key --populate archbsd
+	fi
 
 	msg "Setting up networking"
 	install -m644 /etc/resolv.conf "${builddir}/etc/resolv.conf"
 
 	msg "Creating user 'builder'"
-	chroot "${builddir}" pw userdel builder || true
-	chroot "${builddir}" pw useradd -n builder -u 1001 -c builder -s /usr/bin/bash -m \
-		|| die "Failed to create user 'builder'"
-
+	if (( $opt_jail )); then
+		jail -c path=${builddir} ${jail_args[@]} command="pw userdel builder" || true
+		jail -c path=${builddir} ${jail_args[@]} command="pw useradd -n builder -u 1001 -c builder -s /usr/bin/bash -m " \
+			|| die "Failed to create user 'builder'"
+	else
+		chroot "${builddir}" pw userdel builder || true
+		chroot "${builddir}" pw useradd -n builder -u 1001 -c builder -s /usr/bin/bash -m \
+			|| die "Failed to create user 'builder'"
+	fi
 	msg "Installing shell profile..."
 	install -o 1001 -m644 "$builder_bashrc" "${builddir}/home/builder/.bashrc"
 
@@ -121,7 +139,11 @@ create_builder_home() {
 	install -o 1001 -m644 "$fullpath/$srcpkg" "${builddir}/home/builder/package"
 
 	msg "Unpacking package sources"
-	chroot "${builddir}" /usr/bin/su -l builder -c "cd ~/package && bsdtar --strip-components=1 -xvf ${srcpkg}" || die "Failed to unpack sources"
+	if (( $opt_jail )); then
+		jail -c path=${builddir} ${jail_args[@]} command="/usr/bin/su -l builder -c "cd ~/package && bsdtar --strip-components=1 -xvf ${srcpkg}"" || die "Failed to unpack sources"
+	else
+		chroot "${builddir}" /usr/bin/su -l builder -c "cd ~/package && bsdtar --strip-components=1 -xvf ${srcpkg}" || die "Failed to unpack sources"
+	fi
 	source "$fullpath/PKGBUILD"
 	for i in "${source[@]}"; do
 		case "$i" in
@@ -142,9 +164,22 @@ create_builder_home() {
 syncdeps() {
 	msg "Syncing dependencies"
 	local synccmd=(--asroot --nobuild --syncdeps --noconfirm --noextract)
-	chroot "${builddir}" /usr/bin/bash -c "cd /home/builder/package && makepkg ${synccmd[*]}" || die "Failed to sync package dependencies"
-	[[ $opt_keepbuild == 1 ]] || chroot "${builddir}" /usr/bin/bash -c "cd /home/builder/package && rm -rf pkg src"        || die "Failed to clean package build directory"
-	chroot "${builddir}" /usr/bin/bash -c "chown -R builder:builder /home/builder/package"    || die "Failed to reown package directory"
+	if (( $opt_jail )); then
+		 jail -c path=${builddir} ${jail_args[@]} command="/usr/bin/bash -c "cd /home/builder/package && makepkg ${synccmd[*]}"" || die "Failed to sync package dependencies"
+	else
+		chroot "${builddir}" /usr/bin/bash -c "cd /home/builder/package && makepkg ${synccmd[*]}" || die "Failed to sync package dependencies"
+	fi
+
+	if (( $opt_jail )); then
+		[[ $opt_keepbuild == 1 ]] || jail -c path=${builddir} ${jail_args[@]} command="/usr/bin/bash -c "cd /home/builder/package && rm -rf pkg src"" || die "Failed to clean package build directory"
+	else
+		[[ $opt_keepbuild == 1 ]] || chroot "${builddir}" /usr/bin/bash -c "cd /home/builder/package && rm -rf pkg src"        || die "Failed to clean package build directory"
+	fi
+	if (( $opt_jail )); then
+		jail -c path=${builddir} ${jail_args[@]} command="/usr/bin/bash -c "chown -R builder:builder /home/builder/package"" || die "Failed to reown package directory"
+	else
+		chroot "${builddir}" /usr/bin/bash -c "chown -R builder:builder /home/builder/package"    || die "Failed to reown package directory"
+	fi
 }
 
 run_prepare() {
@@ -155,15 +190,27 @@ run_prepare() {
 
 	msg "Running prepare script %s" "$prepare_script"
 	install -m644 "$prepare_script" "${builddir}/root/prepare.sh"
-	chroot "${builddir}" /usr/bin/bash /root/prepare.sh
+	if (( $opt_jail )); then
+		jail -c path=${builddir} ${jail_args[@]} command="/usr/bin/bash /root/prepare.sh"
+	else
+		chroot "${builddir}" /usr/bin/bash /root/prepare.sh
+	fi
 
 	msg "Running ldconfig service"
-	chroot "${builddir}" /usr/sbin/service ldconfig onestart
+	if (( $opt_jail )); then
+		jail -c path=${builddir} ${jail_args[@]} command="/usr/sbin/service ldconfig onestart"
+	else
+		chroot "${builddir}" /usr/sbin/service ldconfig onestart
+	fi
 }
 
 start_build() {
 	msg "Starting build"
-	chroot "${builddir}" /usr/bin/su -l builder -c "cd ~/package && makepkg ${makepkgargs[*]}" || die "Failed to build package"
+	if (( $opt_jail )); then
+		 jail -c path=${builddir} ${jail_args[@]} command="/usr/bin/su -l builder -c "cd ~/package && makepkg ${makepkgargs[*]}"" || die "Failed to build package"
+	else
+		chroot "${builddir}" /usr/bin/su -l builder -c "cd ~/package && makepkg ${makepkgargs[*]}" || die "Failed to build package"
+	fi
 }
 
 move_packages() {
