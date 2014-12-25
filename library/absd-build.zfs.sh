@@ -75,6 +75,7 @@ zfs_unmount() {
 	builddir="${subvol_dir}"
 	do_unmount
 	if zfs_ismounted; then
+		sync && sleep 3
 		umount "${subvol_dir}"
 	fi
 }
@@ -186,6 +187,7 @@ zfs_configure() {
 zfs_remove_dataset() {
 	if zvol_exists "$1"; then
 		if zvol_ismounted "$1"; then
+			sync && sleep 3
 			umount "$1" || die "unmounting failed"
 		fi
 		zvol_ismounted "$1" && die "still mounted: $1"
@@ -242,5 +244,6 @@ zfs_create_chroot() {
 }
 
 zfs_unmount_chroot() {
+	sync && sleep 3
 	umount "$builddir" 2>/dev/null
 }

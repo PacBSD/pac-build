@@ -95,6 +95,8 @@ postconf() {
 			return;
 		fi
 		msg "unmounting binds"
+		## sync data before unmount and then sleep for 3 to make sure all data writing is complete
+		sync && sleep 3
 		umount "${builddir}"/{dev,var/cache/pacman/pkg} 2>/dev/null
 		umount "${builddir}"/{proc,compat/linux/proc} 2>/dev/null
 		if (( $opt_zfs )); then
