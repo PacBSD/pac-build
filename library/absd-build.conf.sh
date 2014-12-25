@@ -95,11 +95,10 @@ postconf() {
 			return;
 		fi
 		msg "unmounting binds"
-		## sync data before unmount and then sleep for 3 to make sure all data writing is complete
-		sync && sleep 3
 
 		# work around gnupg bug FS#43002
 		# -k kills the gpg-agent process after pacman-key --init, which prevents umount of dev
+
 		fuser -k -c "${builddir}"/dev
 		umount "${builddir}"/{dev,var/cache/pacman/pkg} 2>/dev/null
 		umount "${builddir}"/{proc,compat/linux/proc} 2>/dev/null

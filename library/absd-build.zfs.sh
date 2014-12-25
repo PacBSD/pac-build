@@ -75,7 +75,6 @@ zfs_unmount() {
 	builddir="${subvol_dir}"
 	do_unmount
 	if zfs_ismounted; then
-		sync && sleep 3
 		umount "${subvol_dir}"
 	fi
 }
