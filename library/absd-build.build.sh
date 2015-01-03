@@ -163,7 +163,7 @@ create_builder_home() {
 
 syncdeps() {
 	msg "Syncing dependencies"
-	local synccmd=(--asroot --nobuild --syncdeps --noconfirm --noextract)
+	local synccmd=(--nobuild --syncdeps --noconfirm --noextract)
 	if (( $opt_jail )); then
 		 jail -c path=${builddir} ${jail_args[@]} command=/usr/bin/bash -c "cd /home/builder/package && makepkg ${synccmd[*]}" || die "Failed to sync package dependencies"
 	else
