@@ -1,32 +1,32 @@
-PROJECT_NAME := absd-build
+PROJECT_NAME := pac-build
 
 DESTDIR :=
 PREFIX := /usr
 BINDIR := $(PREFIX)/bin
 SYSCONFDIR := /etc
-VARDIR := /var/absd
+VARDIR := /var/pac
 DATADIR := $(PREFIX)/share/$(PROJECT_NAME)
 
-SCRIPTFILES = absd-build etc/archbsd-build.conf
+SCRIPTFILES = pac-build etc/pac-build.conf
 DATAFILES   = library/*.sh
 
 .PHONY: install install-program install-config clean
 all: $(SCRIPTFILES)
 
-absd-build: absd-build.in
+pac-build: pac-build.in
 	sed -e 's@^libdir=.*@libdir=$(DATADIR)@' \
 	    -e '/^mydir=.*library$$/d' \
-	        absd-build.in \
-	      > absd-build
+	        pac-build.in \
+	      > pac-build
 
-etc/archbsd-build.conf: etc/archbsd-build.conf.in
+etc/pac-build.conf: etc/pac-build.conf.in
 	sed -e 's@%%VARDIR%%@$(VARDIR)@g' $@.in > $@
 
 install: install-program install-config
 
 install-program:
 	install -dm755                 "$(DESTDIR)$(BINDIR)"
-	install -m755  absd-build      "$(DESTDIR)$(BINDIR)/absd-build"
+	install -m755  pac-build      "$(DESTDIR)$(BINDIR)/pac-build"
 	install -dm755                 "$(DESTDIR)$(DATADIR)"
 	install -m644 $(DATAFILES)     "$(DESTDIR)$(DATADIR)/"
 	install -dm755                 "$(DESTDIR)$(VARDIR)/scripts"
@@ -38,8 +38,8 @@ install-program:
 
 install-config:
 	install -dm755                 "$(DESTDIR)$(SYSCONFDIR)"
-	install -m644  etc/archbsd-build.conf \
-	                               "$(DESTDIR)$(SYSCONFDIR)/archbsd-build.conf"
+	install -m644  etc/pac-build.conf \
+	                               "$(DESTDIR)$(SYSCONFDIR)/pac-build.conf"
 
 clean:
 	rm $(SCRIPTFILES)
