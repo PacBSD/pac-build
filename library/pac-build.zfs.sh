@@ -75,6 +75,7 @@ zfs_unmount() {
 	builddir="${subvol_dir}"
 	do_unmount
 	if zfs_ismounted; then
+		fuser -k -c "${subvol_dir}"/dev > /dev/null 2>&1
 		umount "${subvol_dir}"
 	fi
 }
