@@ -99,9 +99,11 @@ postconf() {
 		# work around gnupg bug FS#43002
 		# -k kills the gpg-agent process after pacman-key --init, which prevents umount of dev
 
+		fuser -k -c "${builddir}"/dev/fd > /dev/null 2>&1
 		fuser -k -c "${builddir}"/dev > /dev/null 2>&1
 		fuser -k -c "${builddir}"/{proc,compat/linux/proc} > /dev/null 2>&1
 
+		umount "${builddir}"/dev/fd 2>/dev/null
 		umount "${builddir}"/{dev,var/cache/pacman/pkg} 2>/dev/null
 		umount "${builddir}"/{proc,compat/linux/proc} 2>/dev/null
 		if (( $opt_zfs )); then
