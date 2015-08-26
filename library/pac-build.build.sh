@@ -103,10 +103,10 @@ configure_chroot() {
 	msg "Initializing the keyring"
 	if (( $opt_jail )); then
 		 jail -c path=${builddir} ${jail_args[@]} command=pacman-key --init
-		 jail -c path=${builddir} ${jail_args[@]} command=pacman-key --populate archbsd
+		 jail -c path=${builddir} ${jail_args[@]} command=pacman-key --populate pacbsd
 	else
 		chroot "${builddir}" pacman-key --init
-		chroot "${builddir}" pacman-key --populate archbsd
+		chroot "${builddir}" pacman-key --populate pacbsd
 	fi
 
 	msg "Setting up networking"
