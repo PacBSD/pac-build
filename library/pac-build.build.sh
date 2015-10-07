@@ -35,7 +35,7 @@ create_chroot() {
 	fi
 
 	if (( ! $opt_existing )); then
-		if ! pacman $opt_confirm "${pacman_rootopt[@]}" -Su freebsd-world bash freebsd-init base base-devel "${opt_install[@]}"; then
+		if ! pacman $opt_confirm "${pacman_rootopt[@]}" -Su freebsd-world bash freebsd-init gnu-coreutils base base-devel "${opt_install[@]}"; then
 			die "Failed to install build chroot"
 		fi
 	elif (( $opt_update )); then
@@ -46,7 +46,7 @@ create_chroot() {
 
 	install -m644 "${pacman_conf_path}" "${builddir}/etc/pacman.conf"
 
-	ln -s "/usr/share/zoneinfo/${timezone}" /etc/localtime
+	ln -s "/usr/share/zoneinfo/${timezone}" ${builddir}/etc/localtime
 }
 
 check_mountfs() {
