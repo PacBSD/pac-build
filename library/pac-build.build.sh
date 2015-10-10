@@ -49,7 +49,7 @@ create_chroot() {
 		rmlink "${builddir}/etc/localtime"
 	fi
 
-	if [ -n "${timezone}" ] && ! -L ${builddir}/etc/localtime ] || [ ! -f ${builddir}/etc/localtime ]; then
+	if [ -n "${timezone}" ] && [ ! -L ${builddir}/etc/localtime ] || [ ! -f ${builddir}/etc/localtime ]; then
 		ln -s "/usr/share/zoneinfo/${timezone}" ${builddir}/etc/localtime
 	fi
 }
