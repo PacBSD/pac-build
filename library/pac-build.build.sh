@@ -45,7 +45,7 @@ create_chroot() {
 	fi
 
 	install -m644 "${pacman_conf_path}" "${builddir}/etc/pacman.conf"
-	if [ ! -L ${builddir}/etc/localtime ] || [ ! -f ${builddir}/etc/localtime ]; then
+	if [ -n "${timezone}" ] && ! -L ${builddir}/etc/localtime ] || [ ! -f ${builddir}/etc/localtime ]; then
 		ln -s "/usr/share/zoneinfo/${timezone}" ${builddir}/etc/localtime
 	fi
 }
