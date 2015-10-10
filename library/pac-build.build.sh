@@ -46,7 +46,7 @@ create_chroot() {
 
 	install -m644 "${pacman_conf_path}" "${builddir}/etc/pacman.conf"
 	if [ -d ${builddir} ]; then 
-		rmlink "${builddir}/etc/localtime"
+		rm "${builddir}/etc/localtime"
 	fi
 
 	if [ -n "${timezone}" ] && [ ! -L ${builddir}/etc/localtime ] || [ ! -f ${builddir}/etc/localtime ]; then
