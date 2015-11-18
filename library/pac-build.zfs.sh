@@ -246,7 +246,7 @@ zfs_create_chroot() {
 zfs_unmount_chroot() {
 	fuser -k -c "$builddir" > /dev/null 2>&1
 	umount "$builddir" 2>/dev/null
-	if [[ "$?" != "0" ]];
+	if [[ "$?" != "0" ]]; then
 		## device is probably still busy, and failed to umount, so force it
 		umount -f "$builddir"
 	fi
