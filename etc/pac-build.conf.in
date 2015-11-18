@@ -4,6 +4,9 @@
 
 #cachedir=/var/cache/pacman/pkg
 
+# timezone: Some packages need a /etc/localtime. e.g mono
+timezone=Europe/London
+
 # abstree: Path to the ABS git clone
 abstree=%%VARDIR%%/abstree
 

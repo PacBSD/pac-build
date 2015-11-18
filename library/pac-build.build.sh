@@ -35,7 +35,7 @@ create_chroot() {
 	fi
 
 	if (( ! $opt_existing )); then
-		if ! pacman $opt_confirm "${pacman_rootopt[@]}" -Su freebsd-world bash freebsd-init gnu-coreutils base base-devel "${opt_install[@]}"; then
+		if ! pacman $opt_confirm "${pacman_rootopt[@]}" -Su freebsd-world bash freebsd-init freebsd-coreutils base base-devel "${opt_install[@]}"; then
 			die "Failed to install build chroot"
 		fi
 	elif (( $opt_update )); then
