@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 #   Copyright (c) 2013 PacBSD Team
 #
 #   This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@ die() {
 # some defaults, can be overwritten in the config
 opt_zfs=0
 opt_jail=0
+opt_ports=0
 opt_mountfs=()
 
 source "${libdir}"/pac-build.build.sh    || die "failed to load library file"
@@ -55,6 +56,7 @@ cmd_options=(
 	"Z zfs         use an existing ZFS base"
 	"M mountonly   only mount the ZFS base and quit"
 	"P noprepare   do not run the prepare script"
+	"p ports       Build package using ports"
 	"i:PKG addpkg  install this package before building (NOT recommended)"
 	"m:MNT mount   mount additional standard filesystems such as proc"
 	"a:PROF prof   select a build profile"
@@ -149,7 +151,12 @@ package_safe="${2//+/_}"
 # let the msg function use repo/package
 newmsg
 
-fullpath="$abstree/$repo/$package_name"
+if (( $opt_ports )); then
+	fullpath="$porttree/$repo/$package_name"
+	portname="$package_name"
+else
+	fullpath="$abstree/$repo/$package_name"
+fi
 fulloutput="$package_output/$repo/$build_profile"
 builddir="$buildtop/$repo/$build_profile/$package_name"
 
@@ -161,9 +168,11 @@ install -dm755 "${builddir}"
 #
 if (( ! $opt_kill && ! $opt_mountonly )); then
 	[ -d "$fullpath" ] || die "No such package found in abs-tree"
-	[ -e "$fullpath/PKGBUILD" ] || die "No PKGBUILD found for package %s" "$package_name"
-	srcpkg=$(getsource)
-	check_source
+	if (( ! $opt_ports )); then
+		[ -e "$fullpath/PKGBUILD" ] || die "No PKGBUILD found for package %s" "$package_name"
+		srcpkg=$(getsource)
+		check_source
+	fi
 fi
 
 #

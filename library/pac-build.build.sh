@@ -119,14 +119,33 @@ configure_chroot() {
 	msg "Setting up networking"
 	install -m644 /etc/resolv.conf "${builddir}/etc/resolv.conf"
 
+	if (( $opt_ports )) && (( ! $opt_update )); then
+		submsg "Fetching and extracting ports"
+		if ! chroot "${builddir}" portsnap fetch extract; then
+			die "failed to fetch ports"
+		fi
+
+		submsg "Installing PacPorts"
+		if ! pacman $opt_confirm "${pacman_rootopt[@]}" -Su PacPorts; then
+			die "Failed to install PacPorts"
+		fi
+	elif (( $opt_update )); then
+		if (( $opt_ports )); then
+			submsg "Updating ports"
+			if ! chroot "${builddir}" portsnap fetch update; then
+				die "failed to fetch ports"
+			fi
+		fi
+	fi
+
 	msg "Creating user 'builder'"
 	if (( $opt_jail )); then
 		jail -c path=${builddir} ${jail_args[@]} command=pw userdel builder || true
-		jail -c path=${builddir} ${jail_args[@]} command=pw useradd -n builder -u 1001 -c builder -s /usr/bin/bash -m \
+		jail -c path=${builddir} ${jail_args[@]} command=pw useradd -n builder -u 1001 -g wheel -c builder -s /usr/bin/bash -m \
 			|| die "Failed to create user 'builder'"
 	else
 		chroot "${builddir}" pw userdel builder || true
-		chroot "${builddir}" pw useradd -n builder -u 1001 -c builder -s /usr/bin/bash -m \
+		chroot "${builddir}" pw useradd -n builder -u 1001 -g wheel -c builder -s /usr/bin/bash -m \
 			|| die "Failed to create user 'builder'"
 	fi
 	msg "Installing shell profile..."
@@ -139,49 +158,59 @@ configure_chroot() {
 create_builder_home() {
 	msg "Installing package building directory"
 	install -o 1001 -dm755 "${builddir}/home/builder/package"
-	install -o 1001 -m644 "$fullpath/$srcpkg" "${builddir}/home/builder/package"
-
-	msg "Unpacking package sources"
-	if (( $opt_jail )); then
-		jail -c path=${builddir} ${jail_args[@]} command=/usr/bin/su -l builder -c "cd ~/package && bsdtar --strip-components=1 -xvf ${srcpkg}" || die "Failed to unpack sources"
+	if (( $opt_ports )); then
+		cp -R "$fullpath" "${builddir}/home/builder/package"
+		## so we can build as builder
+		chown -R 1001:1001 "${builddir}/home/builder/package"
 	else
-		chroot "${builddir}" /usr/bin/su -l builder -c "cd ~/package && bsdtar --strip-components=1 -xvf ${srcpkg}" || die "Failed to unpack sources"
+		install -o 1001 -m644 "$fullpath/$srcpkg" "${builddir}/home/builder/package"
 	fi
-	source "$fullpath/PKGBUILD"
-	for i in "${source[@]}"; do
-		case "$i" in
-			*::*) i=${i%::*} ;;
-			*)    i=${i##*/} ;;
-		esac
-		if [ -e "$fullpath/$i" ]; then
-			msg "Copying file %s" "$i"
-			#install -o 1001 -m644 "$fullpath/$i" "${builddir}/home/builder/package/$i"
-			cp -a "$fullpath/$i" "${builddir}/home/builder/package/$i"
-			chown -R 1001 "${builddir}/home/builder/package/$i"
+
+	if (( ! $opt_ports )); then
+		msg "Unpacking package sources"
+		if (( $opt_jail )); then
+			jail -c path=${builddir} ${jail_args[@]} command=/usr/bin/su -l builder -c "cd ~/package && bsdtar --strip-components=1 -xvf ${srcpkg}" || die "Failed to unpack sources"
 		else
-			msg "You don't have this file? %s" "$i"
+			chroot "${builddir}" /usr/bin/su -l builder -c "cd ~/package && bsdtar --strip-components=1 -xvf ${srcpkg}" || die "Failed to unpack sources"
 		fi
-	done
+		source "$fullpath/PKGBUILD"
+		for i in "${source[@]}"; do
+			case "$i" in
+				*::*) i=${i%::*} ;;
+				*)    i=${i##*/} ;;
+			esac
+			if [ -e "$fullpath/$i" ]; then
+				msg "Copying file %s" "$i"
+				#install -o 1001 -m644 "$fullpath/$i" "${builddir}/home/builder/package/$i"
+				cp -a "$fullpath/$i" "${builddir}/home/builder/package/$i"
+				chown -R 1001 "${builddir}/home/builder/package/$i"
+			else
+				msg "You don't have this file? %s" "$i"
+			fi
+		done
+	fi
 }
 
 syncdeps() {
-	msg "Syncing dependencies"
-	local synccmd=(--nobuild --syncdeps --noconfirm --noextract)
-	if (( $opt_jail )); then
-		 jail -c path=${builddir} ${jail_args[@]} command=/usr/bin/bash -c "cd /home/builder/package && makepkg ${synccmd[*]}" || die "Failed to sync package dependencies"
-	else
-		chroot "${builddir}" /usr/bin/bash -c "cd /home/builder/package && makepkg ${synccmd[*]}" || die "Failed to sync package dependencies"
-	fi
+	if (( ! $opt_ports )); then
+		msg "Syncing dependencies"
+		local synccmd=(--nobuild --syncdeps --noconfirm --noextract)
+		if (( $opt_jail )); then
+			jail -c path=${builddir} ${jail_args[@]} command=/usr/bin/bash -c "cd /home/builder/package && makepkg ${synccmd[*]}" || die "Failed to sync package dependencies"
+		else
+			chroot "${builddir}" /usr/bin/bash -c "cd /home/builder/package && makepkg ${synccmd[*]}" || die "Failed to sync package dependencies"
+		fi
 
-	if (( $opt_jail )); then
-		[[ $opt_keepbuild == 1 ]] || jail -c path=${builddir} ${jail_args[@]} command=/usr/bin/bash -c "cd /home/builder/package && rm -rf pkg src" || die "Failed to clean package build directory"
-	else
-		[[ $opt_keepbuild == 1 ]] || chroot "${builddir}" /usr/bin/bash -c "cd /home/builder/package && rm -rf pkg src"        || die "Failed to clean package build directory"
-	fi
-	if (( $opt_jail )); then
-		jail -c path=${builddir} ${jail_args[@]} command=/usr/bin/bash -c "chown -R builder:builder /home/builder/package" || die "Failed to reown package directory"
-	else
-		chroot "${builddir}" /usr/bin/bash -c "chown -R builder:builder /home/builder/package"    || die "Failed to reown package directory"
+		if (( $opt_jail )); then
+			[[ $opt_keepbuild == 1 ]] || jail -c path=${builddir} ${jail_args[@]} command=/usr/bin/bash -c "cd /home/builder/package && rm -rf pkg src" || die "Failed to clean package build directory"
+		else
+			[[ $opt_keepbuild == 1 ]] || chroot "${builddir}" /usr/bin/bash -c "cd /home/builder/package && rm -rf pkg src"        || die "Failed to clean package build directory"
+		fi
+		if (( $opt_jail )); then
+			jail -c path=${builddir} ${jail_args[@]} command=/usr/bin/bash -c "chown -R builder:builder /home/builder/package" || die "Failed to reown package directory"
+		else
+			chroot "${builddir}" /usr/bin/bash -c "chown -R builder:builder /home/builder/package"    || die "Failed to reown package directory"
+		fi
 	fi
 }
 
@@ -209,10 +238,19 @@ run_prepare() {
 
 start_build() {
 	msg "Starting build"
-	if (( $opt_jail )); then
-		 jail -c path=${builddir} ${jail_args[@]} command=/usr/bin/su -l builder -c "cd ~/package && makepkg ${makepkgargs[*]}" || die "Failed to build package"
+
+	if (( $opt_ports ));then 
+		if (( $opt_jail )); then
+			jail -c path=${builddir} ${jail_args[@]} command=/usr/bin/su -l builder -c "cd ~/package/$port_name && mkportpkg" || die "Failed to build port"
+		else
+			chroot "${builddir}" /usr/bin/su -l builder -c "cd ~/package/$portname && mkportpkg" || die "Failed to build port"
+		fi
 	else
-		chroot "${builddir}" /usr/bin/su -l builder -c "cd ~/package && makepkg ${makepkgargs[*]}" || die "Failed to build package"
+		if (( $opt_jail )); then
+			jail -c path=${builddir} ${jail_args[@]} command=/usr/bin/su -l builder -c "cd ~/package && makepkg ${makepkgargs[*]}" || die "Failed to build package"
+		else
+			chroot "${builddir}" /usr/bin/su -l builder -c "cd ~/package && makepkg ${makepkgargs[*]}" || die "Failed to build package"
+		fi
 	fi
 }
 

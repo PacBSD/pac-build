@@ -106,6 +106,10 @@ zfs_init() {
 	opt_confirm=--noconfirm
 	opt_install=()
 	create_chroot
+	if (( $opt_ports )); then
+		submsg "Installing FreeBSD Ports"
+		install_ports
+	fi
 	opt_kill_ld=0
 	configure_chroot
 	zfs_unmount
@@ -122,6 +126,10 @@ zfs_update() {
 	opt_update=1
 	opt_confirm=--noconfirm
 	opt_install=()
+	if (( $opt_ports )); then
+		submsg "Updating FreeBSD Ports"
+		update_ports
+	fi
 	create_chroot
 	opt_kill_ld=0
 	configure_chroot
