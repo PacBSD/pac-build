@@ -140,10 +140,14 @@ configure_chroot() {
 
 	msg "Creating user 'builder'"
 	if (( $opt_jail )); then
+		jail -c path=${builddir} ${jail_args[0]} command=pw groupdel builder || true
+		jail -c path=${builddir} ${jail_args[0]} command=pw groupadd -n builder -g 1001 || die "Failed to create group 'builder'"
 		jail -c path=${builddir} ${jail_args[@]} command=pw userdel builder || true
 		jail -c path=${builddir} ${jail_args[@]} command=pw useradd -n builder -u 1001 -g wheel -c builder -s /usr/bin/bash -m \
 			|| die "Failed to create user 'builder'"
 	else
+		chroot "${builddir}" pw groupdel builder || true
+		chroot "${builddir}" pw groupadd -n builder -g 1001 || die "Failed to create group 'builder'"
 		chroot "${builddir}" pw userdel builder || true
 		chroot "${builddir}" pw useradd -n builder -u 1001 -g wheel -c builder -s /usr/bin/bash -m \
 			|| die "Failed to create user 'builder'"
